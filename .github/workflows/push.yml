@@ -3,6 +3,9 @@ name: Push
 on:
   - push
 
+env:
+  TOMCAT_VERSION: "9.0.65"
+
 jobs:
   build:
     name: Build ERDDAP WAR and content
@@ -58,27 +61,27 @@ jobs:
         env:
           JAVA_HOME: /usr/bin/java
         run: |
-          wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.64/bin/apache-tomcat-9.0.64.tar.gz
-          tar xvfz apache-tomcat-9.0.64.tar.gz
-          rm apache-tomcat-9.0.64.tar.gz
+          wget https://dlcdn.apache.org/tomcat/tomcat-9/v${{ env.TOMCAT_VERSION }}/bin/apache-tomcat-${{ env.TOMCAT_VERSION }}.tar.gz
+          tar xvfz apache-tomcat-${{ env.TOMCAT_VERSION }}.tar.gz
+          rm apache-tomcat-${{ env.TOMCAT_VERSION }}.tar.gz
 
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          path: apache-tomcat-9.0.64/webapps/erddap
+          path: apache-tomcat-${{ env.TOMCAT_VERSION }}/webapps/erddap
 
       - name: Move files
-        run: cp apache-tomcat-9.0.64/webapps/erddap/WEB-INF/erddap.web.xml apache-tomcat-9.0.64/webapps/erddap/WEB-INF/web.xml
+        run: cp apache-tomcat-${{ env.TOMCAT_VERSION }}/webapps/erddap/WEB-INF/erddap.web.xml apache-tomcat-${{ env.TOMCAT_VERSION }}/webapps/erddap/WEB-INF/web.xml
 
       - name: Make WEB-INF/temp/
-        run: mkdir apache-tomcat-9.0.64/webapps/erddap/WEB-INF/temp/
+        run: mkdir apache-tomcat-${{ env.TOMCAT_VERSION }}/webapps/erddap/WEB-INF/temp/
 
       - name: Compile Java classes
-        working-directory: ./apache-tomcat-9.0.64/webapps/erddap/WEB-INF
+        working-directory: ./apache-tomcat-${{ env.TOMCAT_VERSION }}/webapps/erddap/WEB-INF
         run: javac -cp classes:../../../lib/servlet-api.jar:lib/* -Xmx4000M -Xms4000M gov.noaa.pfel.coastwatch.TestAll
 
       - name: Compile TestAll
-        working-directory: ./apache-tomcat-9.0.64/webapps/erddap/WEB-INF
+        working-directory: ./apache-tomcat-${{ env.TOMCAT_VERSION }}/webapps/erddap/WEB-INF
         run: java -cp classes:../../../lib/servlet-api.jar:lib/* -Xmx4000M -Xms4000M classes/gov/noaa/pfel/coastwatch/TestAll
 
       - name: Debug directory structure
